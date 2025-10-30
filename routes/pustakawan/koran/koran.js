@@ -127,7 +127,6 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
             return res.redirect('/pustakawan/koran')
         }
 
-        // validasi & normalisasi khusus batch: tahun 4 digit dan bulan enum (case-insensitive)
         const CANONICAL_BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
         const BULAN_MAP = CANONICAL_BULAN.reduce((acc, b) => { acc[b.toLowerCase()] = b; return acc }, {})
         const isValidYear = (y) => /^\d{4}$/.test(String(y || '').trim())
