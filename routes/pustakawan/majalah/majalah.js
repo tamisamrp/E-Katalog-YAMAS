@@ -5,15 +5,14 @@ const multer = require('multer')
 const fs = require('fs')
 const xlsx = require('xlsx')
 // import model majalah
-const modelMajalah = require('../../../model/modelMajalah')
+const Majalah = require('../../../models/Majalah')
 // import model rak
-const modelRak = require('../../../model/modelRak')
+const Rak = require('../../../models/Rak')
 // import model pengguna
-const modelPengguna = require('../../../model/modelPengguna')
 // import middleware untuk mengecek peran pengguna
-const {authPustakawan} = require('../.././../middleware/auth')
+const {authPustakawan} = require('../.././../middlewares/auth')
 // import middleware untuk compress dan convert image ke webp
-const { convertImageFile } = require('../../../middleware/convertImage')
+const { convertImageFile } = require('../../../middlewares/convertImage')
 
 //konfigurasi multer untuk upload gambar
 const storage = multer.diskStorage({
@@ -67,21 +66,21 @@ router.get('/', authPustakawan, async (req, res) => {
         const offset = (page - 1) * limit
 
         if (flashedKeyword) {
-            const majalah = await modelMajalah.searchJudulMajalah(flashedKeyword)
+            const majalah = await Majalah.searchJudulMajalah(flashedKeyword)
             const totalMajalah = majalah.length
             const totalHalaman = 1
             return res.render('pengurus/pustakawan/majalah/index', {majalah, user, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
-        const majalah = await modelMajalah.getMajalah(limit, offset)
+        const majalah = await Majalah.getMajalah(limit, offset)
         
         const totalMajalah = majalah.length
         const totalHalaman = Math.ceil(totalMajalah / limit)
 
         res.render('pengurus/pustakawan/majalah/index', { majalah, user, page, totalHalaman })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -94,8 +93,8 @@ router.post('/search', authPustakawan, async (req, res) => {
         req.flash('keyword', judul)
         return res.redirect('/pustakawan/majalah')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -108,7 +107,7 @@ router.get('/buat', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data rak
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
         
         res.render('pengurus/pustakawan/majalah/buat', { 
             rak,
@@ -116,8 +115,8 @@ router.get('/buat', authPustakawan, async (req, res) => {
             data: req.flash('data')[0]
         })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -133,12 +132,12 @@ router.get('/:id', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data majalah berdasarakn id
-        const majalah = await modelMajalah.getById(id)
+        const majalah = await Majalah.getById(id)
         
         res.render('pengurus/pustakawan/majalah/detail', {majalah, user})
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/majalah')
     }
 })
@@ -202,7 +201,7 @@ router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, 
         }
 
         // memeriksa duplikasi no klasifikasi
-        if (await modelMajalah.checkNoKlasifikasiCreate(data)) {
+        if (await Majalah.checkNoKlasifikasiCreate(data)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'No Klasifikasi sudah ada')
@@ -226,13 +225,13 @@ router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, 
             }
         }
 
-        await modelMajalah.store(data)
+        await Majalah.store(data)
         req.flash('success', 'Majalah berhasil ditambahkan')
         return res.redirect('/pustakawan/majalah')
     } catch (err) {
         deleteUploadedFile(req.file)
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/majalah')
     }
 })
@@ -277,7 +276,7 @@ router.post('/create-batch-majalah', authPustakawan, uploadBatch.array('files'),
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
 
         const getIdRak = (kode_rak) => {
             if (!kode_rak) return null
@@ -329,7 +328,7 @@ router.post('/create-batch-majalah', authPustakawan, uploadBatch.array('files'),
                 return res.redirect('/pustakawan/majalah')
             }
 
-            const checkNoKlasifikasi = await modelMajalah.checkNoKlasifikasiCreate({ no_klasifikasi: data.no_klasifikasi })
+            const checkNoKlasifikasi = await Majalah.checkNoKlasifikasiCreate({ no_klasifikasi: data.no_klasifikasi })
             if (checkNoKlasifikasi) {
                 deleteUploadedFile(files)
 
@@ -367,7 +366,7 @@ router.post('/create-batch-majalah', authPustakawan, uploadBatch.array('files'),
                 digunakanFotoNames.add(item.filename)
             }
 
-            await modelMajalah.store(item.data)
+            await Majalah.store(item.data)
         }
 
         for (const file of imageFiles) {
@@ -403,14 +402,14 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data rak
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
         // mengambil semua data majalah berdasarkan id
-        const majalah = await modelMajalah.getById(id)
+        const majalah = await Majalah.getById(id)
 
         res.render('pengurus/pustakawan/majalah/edit', { majalah, rak, user })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect(`/pustakawan/majalah`)
     }
 })
@@ -421,7 +420,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         // destructuring req.params
         const { id } = req.params
         // mendapatkan cover majalah berdasarkan id
-        const majalah = await modelMajalah.getCoverById(id)
+        const majalah = await Majalah.getCoverById(id)
 
         // mendapatkan id pengguna dari session
         const userId = req.session.penggunaId
@@ -467,7 +466,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         }
 
         //cek no_klasifikasi
-        if (await modelMajalah.checkNoKlasifikasiEdit(data, id)) {
+        if (await Majalah.checkNoKlasifikasiEdit(data, id)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'No Klasifikasi sudah ada')
@@ -493,7 +492,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         // jika ada foto lama dan diupdate dengan foto baru, maka foto lama dihapus
         if (req.file) deleteOldPhoto(majalah.foto_cover)
 
-        await modelMajalah.update(id, data)
+        await Majalah.update(id, data)
         req.flash('success', 'Majalah berhasil diupdate')
         res.redirect(`/pustakawan/majalah`)
     } catch (err) {
@@ -514,13 +513,13 @@ router.post('/delete/:id', authPustakawan, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        await modelMajalah.softDelete(user, id)
+        await Majalah.softDelete(user, id)
 
         req.flash('success', 'Majalah berhasil dihapus')
         res.redirect('/pustakawan/majalah')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/majalah')
     }
 })

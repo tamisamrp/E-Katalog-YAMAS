@@ -3,11 +3,10 @@ const router = express.Router()
 const path = require('path')
 const fs = require('fs')
 // import model buku
-const modelBuku = require('../../model/modelBuku')
+const Buku = require('../../models/Buku')
 // import model pengguna
-const modelPengguna = require('../../model/modelPengguna')
 // import middleware untuk mengecek peran pengguna login
-const {authManajer} = require('../../middleware/auth')
+const {authManajer} = require('../../middlewares/auth')
 
 const deleteOldPhoto = (oldPhoto) => {
     if (oldPhoto) {
@@ -28,20 +27,20 @@ router.get('/', authManajer, async (req, res) => {
         const offset = (page - 1) * limit
 
         if (flashedKeyword) {
-            const buku = await modelBuku.searchJudulBukuHapus(flashedKeyword)
+            const buku = await Buku.searchJudulBukuHapus(flashedKeyword)
             const totalBuku = buku.length
             const totalHalaman = 1
             return res.render('pengurus/manajer/buku/index', {buku, user, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
-        const buku = await modelBuku.getBukuHapus(limit, offset)
+        const buku = await Buku.getBukuHapus(limit, offset)
         const totalBuku = buku.length
         const totalHalaman = Math.ceil(totalBuku / limit)
 
         res.render('pengurus/manajer/buku/index', { buku, user, page, totalHalaman })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/dashboard')
     }
 })
@@ -52,8 +51,8 @@ router.post('/search', authManajer, async (req, res) => {
         req.flash('keyword', judul)
         return res.redirect('/manajer/buku')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/dashboard')
     }
 })
@@ -65,12 +64,12 @@ router.get('/:id', authManajer, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        const buku = await modelBuku.getByIdHapus(id)
+        const buku = await Buku.getByIdHapus(id)
 
         res.render('pengurus/manajer/buku/detail', { buku, user })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/buku')
     }
 })
@@ -84,13 +83,13 @@ router.post('/edit/:id', authManajer, async (req, res) => {
         // menyimpan data yang diinputkan user
         const data = {status_data}
 
-        await modelBuku.updateStatusData(data, id)
+        await Buku.updateStatusData(data, id)
 
         req.flash('success', 'Buku berhasil ditampilkan')
         res.redirect('/manajer/buku')
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/buku')
     }
 })
@@ -100,16 +99,17 @@ router.post('/delete/:id', authManajer, async (req, res) => {
         // mengambil id dari params
         const {id} = req.params
 
-        const buku = await modelBuku.getCoverByIdHapus(id)
+        const buku = await Buku.getCoverByIdHapus(id)
         const oldPhoto = buku.foto_cover
         deleteOldPhoto(oldPhoto)
         
-        await modelBuku.hardDelete(id)
+        await Buku.hardDelete(id)
         
         req.flash('success', 'Buku berhasil dihapus')
         res.redirect('/manajer/buku')
     } catch (err) {
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/buku')
     }
 })

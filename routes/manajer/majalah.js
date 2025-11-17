@@ -2,12 +2,9 @@ const express = require('express')
 const router = express.Router()
 const path = require('path')
 const fs = require('fs')
-// import model majalah
-const modelMajalah = require('../../model/modelMajalah')
-// import model pengguna
-const modelPengguna = require('../../model/modelPengguna')
-// import middleware untuk mengecek peran pengguna login
-const {authManajer} = require('../../middleware/auth')
+const Majalah = require('../../models/Majalah')
+const Pegawai = require('../../models/Pegawai')
+const {authManajer} = require('../../middlewares/auth')
 
 const deleteOldPhoto = (oldPhoto) => {
     if (oldPhoto) {
@@ -28,20 +25,20 @@ router.get('/', authManajer, async (req, res) => {
         const offset = (page - 1) * limit
 
         if (flashedKeyword) {
-            const majalah = await modelMajalah.searchJudulMajalahHapus(flashedKeyword)
+            const majalah = await Majalah.searchJudulMajalahHapus(flashedKeyword)
             const totalMajalah = majalah.length
             const totalHalaman = 1
             return res.render('pengurus/manajer/majalah/index', {majalah, user, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
-        const majalah = await modelMajalah.getMajalahHapus(limit, offset)
+        const majalah = await Majalah.getMajalahHapus(limit, offset)
         const totalMajalah = majalah.length
         const totalHalaman = Math.ceil(totalMajalah / limit)
 
         res.render('pengurus/manajer/majalah/index', { majalah, user, page, totalHalaman })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/majalah')
     }
 })
@@ -52,8 +49,8 @@ router.post('/search', authManajer, async (req, res) => {
         req.flash('keyword', judul)
         return res.redirect('/manajer/majalah')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/majalah')
     }
 })
@@ -66,12 +63,12 @@ router.get('/:id', authManajer, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
         
-        const majalah = await modelMajalah.getByIdHapus(id)
+        const majalah = await Majalah.getByIdHapus(id)
 
         res.render('pengurus/manajer/majalah/detail', { majalah, user })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/majalah')
     }
 })
@@ -85,13 +82,13 @@ router.post('/edit/:id', authManajer, async (req, res) => {
         // menyimpan data yang diinputkan user
         const data = {status_data}
 
-        await modelMajalah.updateStatusData(data, id)
+        await Majalah.updateStatusData(data, id)
 
         req.flash('success', 'Majalah berhasil ditampilkan')
         res.redirect('/manajer/majalah')
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/manajer/majalah')
     }
 })
@@ -102,11 +99,11 @@ router.post('/delete/:id', authManajer, async (req, res) => {
         const { id } = req.params
         
         // menghapus foto lama
-        const majalah = await modelMajalah.getCoverByIdHapus(id)
+        const majalah = await Majalah.getCoverByIdHapus(id)
         const oldPhoto = majalah.foto_cover
         deleteOldPhoto(oldPhoto)
         
-        await modelMajalah.hardDelete(id)
+        await Majalah.hardDelete(id)
 
         req.flash('success', 'Majalah berhasil dihapus')
         res.redirect('/manajer/majalah')
