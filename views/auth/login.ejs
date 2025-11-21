@@ -1,32 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <%- include('../partials/header/__headerAuth.ejs', { title: 'Login' }) %>
-</head>
-
-<body>
-    <%- include('../partials/messages/messagesAuth.ejs') %>
+<%- include('../partials/header/__header-auth.ejs', { title: 'Login' }) %>
+<%- include('../partials/messages/__messages-auth.ejs') %>
     <section class="hero-section">
         <div class="brand-logo">
             <img src="../../images/assets/logo_medayuagung_warna.webp" alt="Logo Perpustakaan Medayu">
         </div>
         <div class="auth-form-light login-box">
-            <a href="/" class="close-icon" aria-label="Tutup dan kembali">
-                <i class="bi bi-x-lg"></i>
-            </a>
             <h2>Login</h2>
             <form action="/log" method="POST">
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-                        <input type="text" class="form-control form-control-lg" id="npInput" placeholder="Nomor Pegawai (NP)" name="NP" value="<%= (typeof data != 'undefined' && data.NP) || '' %>">
+                        <input type="text" class="form-control form-control-lg" id="npInput" placeholder="Nomor Pegawai" name="nomor_pegawai" value="<%= (typeof data != 'undefined' && data.nomor_pegawai) || '' %>">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control form-control-lg" id="passwordInput" placeholder="Password" name="kata_sandi" value="<%= (typeof data != 'undefined' && data.kata_sandi) || '' %>">
+                        <input type="password" class="form-control form-control-lg" id="passwordInput" placeholder="Kata Sandi" name="kata_sandi" value="<%= (typeof data != 'undefined' && data.kata_sandi) || '' %>">
                         <span class="input-group-text toggle-password"><i class="bi bi-eye-slash"></i></span>
                     </div>
                     <div id="validation-error" class="text-danger mt-2"></div>
@@ -37,8 +27,4 @@
             </form>
         </div>
     </section>
-
-    <%- include('../partials/script/__scriptAuth.ejs') %>
-</body>
-
-</html>
+<%- include('../partials/script/__script-auth.ejs') %>

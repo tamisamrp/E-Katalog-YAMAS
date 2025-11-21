@@ -1,13 +1,12 @@
 const express = require('express')
 const router = express.Router()
 //import model ruangan 
-const modelRuangan = require('../../../model/modelRuangan')
+const Ruangan = require('../../../models/Ruangan')
 //import model lantai
-const modelLantai = require('../../../model/modelLantai')
+const Lantai = require('../../../models/Lantai')
 //import model pengguna
-const modelPengguna = require('../../../model/modelPengguna')
 // import middleware untuk mengecek peran pengguna login
-const {authPustakawan} = require('../.././../middleware/auth')
+const {authPustakawan} = require('../.././../middlewares/auth')
 
 //menampilakn semua data ruangan
 router.get('/', authPustakawan, async(req, res) => {
@@ -17,12 +16,12 @@ router.get('/', authPustakawan, async(req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengabil semua data ruangan
-        const data = await modelRuangan.getAll()
+        const data = await Ruangan.getAll()
 
         res.render('pengurus/pustakawan/lokasi/ruangan/index', {data, user})
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -35,7 +34,7 @@ router.get('/buat', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data lantai
-        const lantai = await modelLantai.getAll()
+        const lantai = await Lantai.getAll()
 
         res.render('pengurus/pustakawan/lokasi/ruangan/buat', { 
             lantai, 
@@ -43,8 +42,8 @@ router.get('/buat', authPustakawan, async (req, res) => {
             data: req.flash('data')[0]
         })
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/ruangan')
     }
 })
@@ -72,18 +71,18 @@ router.post('/create', authPustakawan, async(req, res) => {
         }
 
         // memeriksa apakah kode ruangan sudah ada
-        if (await modelRuangan.checkKodeRuanganCreate(data)) {
+        if (await Ruangan.checkKodeRuanganCreate(data)) {
             req.flash('error', 'Kode ruangan tidak boleh sama')
             req.flash('data', req.body)
             return res.redirect('/pustakawan/ruangan/buat')
         }
 
-        await modelRuangan.store(data)
+        await Ruangan.store(data)
         req.flash('success', 'Data ruangan berhasil ditambahkan')
         res.redirect('/pustakawan/ruangan')
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/ruangan')
     }
 })
@@ -97,10 +96,10 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil data ruanagn berdasarakn id
-        const data = await modelRuangan.getById(id)
+        const data = await Ruangan.getById(id)
 
         // mengambil semua data lantai
-        const lantai = await modelLantai.getAll()
+        const lantai = await Lantai.getAll()
 
         res.render('pengurus/pustakawan/lokasi/ruangan/edit', {data, lantai, user})
     } catch(err) {
@@ -135,17 +134,17 @@ router.post('/update/:id', authPustakawan, async(req, res) => {
         }
 
         // memeriksa apakah kode ruangan tidak boleh sama
-        if (await modelRuangan.checkRuanganUpdate(data, id)) {
+        if (await Ruangan.checkRuanganUpdate(data, id)) {
             req.flash('error', 'Kode ruangan tidak boleh sama')
             return res.redirect(`/pustakawan/ruangan/edit/${id}`)
         }
 
-        await modelRuangan.update(data, id)
+        await Ruangan.update(data, id)
         req.flash('success', 'Data berhasil diupdate')
         res.redirect('/pustakawan/ruangan')
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/ruangan')
     }
 })
@@ -157,17 +156,17 @@ router.post('/delete/:id', authPustakawan, async (req, res) => {
         const {id} = req.params
         
         // mengecek apakah ruangan sudah digunakan
-        if (await modelRuangan.checkRakUsed(id)) {
+        if (await Ruangan.checkRakUsed(id)) {
             req.flash("error", "Ruangan masih digunakan oleh rak lain")
             return res.redirect('/pustakawan/ruangan')
         }
         
-        await modelRuangan.delete(id)
+        await Ruangan.delete(id)
         req.flash('success', 'Data ruangan berhasil dihapus')
         res.redirect('/pustakawan/ruangan')
     } catch(err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/ruangan')
     }
 })

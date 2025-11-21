@@ -2,10 +2,9 @@ const express = require('express')
 const router = express.Router()
 const xlsx = require('xlsx')
 const multer = require('multer')
-const modelPengguna = require('../../../model/modelPengguna')
-const modelKoran = require('../../../model/modelKoran')
-const modelPenerbitKoran = require('../../../model/modelPenerbitKoran')
-const {authPustakawan} = require('../.././../middleware/auth')
+const Koran = require('../../../models/Koran')
+const PenerbitKoran = require('../../../models/PenerbitKoran')
+const {authPustakawan} = require('../.././../middlewares/auth')
 
 
 const uploadExcel = multer({ storage: multer.memoryStorage() })
@@ -19,19 +18,19 @@ router.get('/', authPustakawan, async (req, res) => {
         const limit = 20
         const offset = (page - 1) * limit
 
-        const penerbitList = await modelPenerbitKoran.getAll()
+        const penerbitList = await PenerbitKoran.getAll()
 
         const flashedIdPenerbit = req.flash('id_penerbit_koran')[0]
         const flashedTahun = req.flash('tahun')[0]
         const flashedBulan = req.flash('bulan')[0]
         if (flashedIdPenerbit && flashedTahun && flashedBulan) {
             const filters = { id_penerbit_koran: flashedIdPenerbit, tahun: flashedTahun, bulan: flashedBulan }
-            const koran = await modelKoran.searchKoranTampil(filters)
+            const koran = await Koran.searchKoranTampil(filters)
             const totalHalaman = 1
             return res.render('pengurus/pustakawan/koran/koran/index', { user, koran, page: 1, totalHalaman, filters, penerbitList })
         }
 
-        const koran = await modelKoran.getKoran(limit, offset)
+        const koran = await Koran.getKoran(limit, offset)
         const totalKoran = koran.length
         const totalHalaman = Math.ceil(totalKoran / limit)
 
@@ -39,7 +38,7 @@ router.get('/', authPustakawan, async (req, res) => {
 
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/dashboard')
     }
 })
@@ -53,7 +52,7 @@ router.post('/search', authPustakawan, async (req, res) => {
         return res.redirect('/pustakawan/koran')
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/dashboard')
     }
 })
@@ -62,11 +61,11 @@ router.get('/buat', authPustakawan, async (req, res) => {
     try {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
-        const penerbitList = await modelPenerbitKoran.getAll()
+        const penerbitList = await PenerbitKoran.getAll()
         res.render('pengurus/pustakawan/koran/koran/buat', { user, penerbitList, data: req.flash('data')[0] })
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })
@@ -76,7 +75,7 @@ router.get('/:id', authPustakawan, async (req, res) => {
         const { id } = req.params
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
-        const koran = await modelKoran.getKoranById(id)
+        const koran = await Koran.getKoranById(id)
 
         if (!koran) {
             req.flash('error', 'Data tidak ditemukan')
@@ -86,7 +85,7 @@ router.get('/:id', authPustakawan, async (req, res) => {
         res.render('pengurus/pustakawan/koran/koran/detail', { user, koran })
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })
@@ -98,12 +97,12 @@ router.post('/create', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
         const data = { id_penerbit_koran, tahun, bulan, dibuat_oleh: user.nama }
 
-        await modelKoran.store(data)
+        await Koran.store(data)
         req.flash('success', 'Koran berhasil dibuat')
         res.redirect('/pustakawan/koran')
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })
@@ -131,7 +130,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
         const BULAN_MAP = CANONICAL_BULAN.reduce((acc, b) => { acc[b.toLowerCase()] = b; return acc }, {})
         const isValidYear = (y) => /^\d{4}$/.test(String(y || '').trim())
 
-        const penerbitAll = await modelPenerbitKoran.getAll()
+        const penerbitAll = await PenerbitKoran.getAll()
         const nameToId = new Map()
         if (Array.isArray(penerbitAll)) {
             for (const p of penerbitAll) {
@@ -167,7 +166,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
             const key = nama_penerbit.toLowerCase()
             let idPenerbit = nameToId.get(key)
             if (!idPenerbit) {
-                const ins = await modelPenerbitKoran.store({ nama_penerbit })
+                const ins = await PenerbitKoran.store({ nama_penerbit })
                 idPenerbit = ins && ins.insertId ? ins.insertId : null
                 if (!idPenerbit) {
                     req.flash('error', `Gagal membuat penerbit baru pada baris ke-${barisKe}`)
@@ -176,7 +175,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
                 nameToId.set(key, idPenerbit)
             }
 
-            const exists = await modelKoran.checkKoran({ id_penerbit_koran: idPenerbit, tahun, bulan })
+            const exists = await Koran.checkKoran({ id_penerbit_koran: idPenerbit, tahun, bulan })
             if (exists) {
                 req.flash('error', `Duplikasi data pada baris ke-${barisKe}`)
                 return res.redirect('/pustakawan/koran')
@@ -184,7 +183,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
 
             data = { id_penerbit_koran: idPenerbit, tahun, bulan, dibuat_oleh: user.nama }
 
-            await modelKoran.store(data)
+            await Koran.store(data)
         }
 
         req.flash('success', 'Data Koran berhasil diunggah')
@@ -201,8 +200,8 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         const { id } = req.params
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
-        const penerbitList = await modelPenerbitKoran.getAll()
-        const koran = await modelKoran.getKoranById(id)
+        const penerbitList = await PenerbitKoran.getAll()
+        const koran = await Koran.getKoranById(id)
         if (!koran) {
             req.flash('error', 'Data tidak ditemukan')
             return res.redirect('/pustakawan/koran')
@@ -210,7 +209,7 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         res.render('pengurus/pustakawan/koran/koran/edit', { user, koran, penerbitList })
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })
@@ -228,12 +227,12 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
             return res.redirect(`/pustakawan/koran/edit/${id}`)
         }
 
-        await modelKoran.update(data, id)
+        await Koran.update(data, id)
         req.flash('success', 'Koran berhasil diupdate')
         res.redirect('/pustakawan/koran')
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })
@@ -244,12 +243,12 @@ router.post('/delete/:id', authPustakawan, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
         
-        await modelKoran.softDelete(user, id)
+        await Koran.softDelete(user, id)
         req.flash('success', 'Koran berhasil dihapus')
         res.redirect('/pustakawan/koran')
     } catch (err) {
         console.error(err)
-        req.flash('error', err.message)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/koran')
     }
 })

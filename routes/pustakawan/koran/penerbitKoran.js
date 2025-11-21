@@ -1,11 +1,10 @@
 const express = require('express')
 const router = express.Router()
 // import model penerbit koran 
-const modelPenerbitKoran = require('../../../model/modelPenerbitKoran')
+const PenerbitKoran = require('../../../models/PenerbitKoran')
 // import model pengguna
-const modelPengguna = require('../../../model/modelPengguna')
 // import middleware untuk mengecek peran pengguna login
-const {authPustakawan} = require('../.././../middleware/auth')
+const {authPustakawan} = require('../.././../middlewares/auth')
 
 
 router.get('/', authPustakawan, async (req, res) => {
@@ -14,12 +13,12 @@ router.get('/', authPustakawan, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        const penerbitKoran = await modelPenerbitKoran.getAll()
+        const penerbitKoran = await PenerbitKoran.getAll()
 
         res.render('pengurus/pustakawan/koran/penerbitKoran/index', {penerbitKoran, user})
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -35,8 +34,8 @@ router.get('/buat', authPustakawan, async (req, res) => {
             data: req.flash('data')[0]
         })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/penerbit-koran')
     }
 })
@@ -52,18 +51,18 @@ router.post('/create', authPustakawan, async (req, res) => {
             return res.redirect('/pustakawan/penerbit-koran/buat')
         }
 
-        if (await modelPenerbitKoran.checkPenerbitKoranCreate(data)) {
+        if (await PenerbitKoran.checkPenerbitKoranCreate(data)) {
             req.flash("error", "Penerbit Koran sudah dibuat")
             req.flash('data', req.body)
             return res.redirect('/pustakawan/penerbit-koran/buat')
         }
 
-        await modelPenerbitKoran.store(data)
+        await PenerbitKoran.store(data)
         req.flash('success', 'Data Berhasil ditambahkan')
         res.redirect('/pustakawan/penerbit-koran')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/penerbit-koran')
     }
 })
@@ -75,7 +74,7 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        const penerbitKoran = await modelPenerbitKoran.getById(id)
+        const penerbitKoran = await PenerbitKoran.getById(id)
         console.log(penerbitKoran)
 
         res.render('pengurus/pustakawan/koran/penerbitKoran/edit', {
@@ -85,8 +84,8 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         })
 
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/penerbit-koran')
     }
 })
@@ -103,18 +102,18 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
             return res.redirect(`/pustakawan/penerbit-koran/edit/${id}`)
         }
 
-        if (await modelPenerbitKoran.checkPenerbitKoranUpdate(data, id)) {
+        if (await PenerbitKoran.checkPenerbitKoranUpdate(data, id)) {
             req.flash("error", "Penerbit Koran sudah dibuat")
             req.flash('data', req.body)
             return res.redirect(`/pustakawan/penerbit-koran/edit/${id}`)
         }
 
-        await modelPenerbitKoran.update(data, id)
+        await PenerbitKoran.update(data, id)
         req.flash('success', 'Data berhasil diedit')
         res.redirect('/pustakawan/penerbit-koran')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/penerbit-koran')
     }
 })
@@ -123,17 +122,17 @@ router.post('/hapus/:id', authPustakawan, async (req, res) => {
     try {
         const {id} = req.params
 
-        if (await modelPenerbitKoran.checkPenerbitKoranUsed(id)) {
+        if (await PenerbitKoran.checkPenerbitKoranUsed(id)) {
             req.flash("error", "Penerbit Koran masih digunakan pada koran")
             return res.redirect(`/pustakawan/penerbit-koran`)
         }
 
-        await modelPenerbitKoran.delete(id)
+        await PenerbitKoran.delete(id)
         req.flash('success', 'Data berhasil dihapus')
         res.redirect('/pustakawan/penerbit-koran')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/penerbit-koran')
     }
 })

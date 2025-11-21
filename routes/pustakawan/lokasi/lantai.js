@@ -1,11 +1,10 @@
 const express = require('express')
 const router = express.Router()
 //import model lantai 
-const modelLantai = require('../../../model/modelLantai')
+const Lantai = require('../../../models/Lantai')
 // import model pengguna
-const modelPengguna = require('../../../model/modelPengguna')
 // import middleware untuk mengecek peran pengguna login
-const {authPustakawan} = require('../.././../middleware/auth')
+const {authPustakawan} = require('../.././../middlewares/auth')
 
 //menampilakn semua data lantai
 router.get('/', authPustakawan, async (req, res) => {
@@ -15,12 +14,12 @@ router.get('/', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data lantai
-        const data = await modelLantai.getAll()
+        const data = await Lantai.getAll()
 
         res.render('pengurus/pustakawan/lokasi/lantai/index', {data, user})
     } catch(err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pengurus/lantai')
     }
 })
@@ -37,8 +36,8 @@ router.get('/buat', authPustakawan, async (req, res) => {
             data: req.flash('data')[0]
         })
     } catch(err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pengurus/lantai')
     }
 })
@@ -60,18 +59,18 @@ router.post('/create', authPustakawan, async (req, res) => {
         }
 
         // memeriksa apakah kode_lantai sudah ada
-        if (await modelLantai.checkLantaiCreate(data)) {
+        if (await Lantai.checkLantaiCreate(data)) {
             req.flash("error", "Lantai Sudah dibuat")
             req.flash('data', req.body)
             return res.redirect('/pustakawan/lantai/buat')
         }
 
-        await modelLantai.store(data)
+        await Lantai.store(data)
         req.flash('success', 'Data Berhasil Ditambahkan')
         res.redirect('/pustakawan/lantai')
     } catch(err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/lantai')
     }
 })
@@ -87,12 +86,12 @@ router.get('/edit/:id', authPustakawan, async(req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil data lantai berdasarkan id
-        const data = await modelLantai.getById(id)
+        const data = await Lantai.getById(id)
 
         res.render('pengurus/pustakawan/lokasi/lantai/edit', {data, user})
     } catch(err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/lantai')
     }
 })
@@ -117,19 +116,19 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
         }
 
         // memeriksa apakah kode_lantai sudah ada
-        if (await modelLantai.checkLantaiUpdate(data, id)) {
+        if (await Lantai.checkLantaiUpdate(data, id)) {
             req.flash("error", "Lantai Sudah dibuat")
             req.flash('data', req.body)
             return res.redirect(`/pustakawan/lantai/edit/${id}`)
         }
 
         // memperbarui data lantai
-        await modelLantai.update(data, id)
+        await Lantai.update(data, id)
         req.flash('success', 'Data Berhasil Diedit')
         res.redirect('/pustakawan/lantai')
     } catch (err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         req.flash('data', req.body)
         return res.redirect('/pustakawan/lantai')
     }
@@ -142,18 +141,18 @@ router.post('/delete/:id', authPustakawan, async (req, res) => {
         const {id} = req.params
 
         // memeriksa apakah lantai sudah digunakan
-        if (await modelLantai.checkLantaiUsed(id)) {
+        if (await Lantai.checkLantaiUsed(id)) {
             req.flash("error", "Lantai masih digunakan oleh ruangan lain")
             req.flash('data', req.body)
             return res.redirect('/pustakawan/lantai')
         }
 
-        await modelLantai.delete(id)
+        await Lantai.delete(id)
         req.flash('success', 'Data Berhasil Dihapus')
         res.redirect('/pustakawan/lantai')
     } catch(err) {
-        console.log(err)
-        req.flash("error", err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/lantai')
     }
 })

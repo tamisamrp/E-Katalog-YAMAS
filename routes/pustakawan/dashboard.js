@@ -1,40 +1,39 @@
 const express = require('express')
 const router = express.Router()
 // import model buku
-const modelBuku = require('../../model/modelBuku')
+const Buku = require('../../models/Buku')
 // import model majalah
-const modelMajalah = require('../../model/modelMajalah')
+const Majalah = require('../../models/Majalah')
 // import model koran
-const modelKoran = require('../../model/modelKoran')
-// import model pengguna
-const modelPengguna = require('../../model/modelPengguna')
+const Koran = require('../../models/Koran')
+// import model pegawai
+const Pegawai = require('../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
-const {authPustakawan} = require('../../middleware/auth')
+const {authPustakawan} = require('../../middlewares/auth')
 
 // route view dashboard pustakawan
 router.get('/', authPustakawan, async (req, res) => {
     try {
         // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
 
         // total buku dengan status data tampil
-        const totalBuku = await modelBuku.getCountBuku()
+        const totalBuku = await Buku.getCountBuku()
         // total majalah dengan status data tampil
-        const totalMajalah = await modelMajalah.getCountMajalah()
+        const totalMajalah = await Majalah.getCountMajalah()
         // total koran dengan status data tampil
-        const totalKoran = await modelKoran.getCountKoran()
+        const totalKoran = await Koran.getCountKoran()
         // mengambil buku terbaru yang dibuat
-        const newBuku = await modelBuku.getNewBuku()
+        const newBuku = await Buku.getNewBuku()
         // mengambil majalah terbaru yang dibuat
-        const newMajalah = await modelMajalah.getNewMajalah()
+        const newMajalah = await Majalah.getNewMajalah()
         // mengambil koran terbaru yang dibuat
-        const newKoran = await modelKoran.getNewKoran()
+        const newKoran = await Koran.getNewKoran()
         
-        res.render('pengurus/pustakawan/dashboard', { totalBuku, totalMajalah, totalKoran, newBuku, newMajalah, newKoran, user })
+        res.render('pustakawan/dashboard', { totalBuku, totalMajalah, totalKoran, newBuku, newMajalah, newKoran, pegawai })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/')
     }
 })

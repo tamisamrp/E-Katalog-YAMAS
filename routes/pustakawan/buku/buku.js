@@ -5,15 +5,14 @@ const multer = require('multer')
 const fs = require('fs')
 const xlsx = require('xlsx')
 // Import model buku
-const modelBuku = require('../../../model/modelBuku')
+const Buku = require('../../../models/Buku')
 // import model rak
-const modelRak = require('../../../model/modelRak')
+const Rak = require('../../../models/Rak')
 // import model pengguna
-const modelPengguna = require('../../../model/modelPengguna')
 // import middleware untuk mengecek peran pada pengguna
-const {authPustakawan} = require('../.././../middleware/auth')
+const {authPustakawan} = require('../.././../middlewares/auth')
 // import middleware untuk compress gambar dan convert ke webp
-const { convertImageFile } = require('../../../middleware/convertImage')
+const { convertImageFile } = require('../../../middlewares/convertImage')
 
 //konfigurasi multer untuk upload gambar
 const storage = multer.diskStorage({
@@ -66,20 +65,20 @@ router.get('/', authPustakawan, async (req, res) => {
         const offset = (page - 1) * limit
 
         if (flashedKeyword) {
-            const buku = await modelBuku.searchJudulBuku(flashedKeyword)
+            const buku = await Buku.searchJudulBuku(flashedKeyword)
             const totalBuku = buku.length
             const totalHalaman = 1
             return res.render('pengurus/pustakawan/buku/index', {buku, user, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
-        const buku = await modelBuku.getBuku(limit, offset)
+        const buku = await Buku.getBuku(limit, offset)
         const totalBuku = buku.length
         const totalHalaman = Math.ceil(totalBuku / limit)
 
         res.render('pengurus/pustakawan/buku/index', {buku, user, page, totalHalaman})
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -91,8 +90,8 @@ router.post('/search', authPustakawan, async (req, res) => {
         req.flash('keyword', judul)
         return res.redirect('/pustakawan/buku')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/dashboard')
     }
 })
@@ -104,7 +103,7 @@ router.get('/buat', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data rak
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
 
         res.render('pengurus/pustakawan/buku/buat', { 
             rak, 
@@ -112,8 +111,8 @@ router.get('/buat', authPustakawan, async (req, res) => {
             data: req.flash('data')[0]
         })
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/buku')
     }
 })
@@ -127,12 +126,12 @@ router.get('/:id', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data buku berdasarkan id
-        const buku = await modelBuku.getById(id)
+        const buku = await Buku.getById(id)
         
         res.render('pengurus/pustakawan/buku/detail', {buku, user})
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/buku')
     }
 })
@@ -205,7 +204,7 @@ router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, 
         }
 
         //cek no_klasifikasi duplikat
-        if (await modelBuku.checkNoKlasifikasiCreate(data)) {
+        if (await Buku.checkNoKlasifikasiCreate(data)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'No Klasifikasi sudah ada')
@@ -214,7 +213,7 @@ router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, 
         }
 
         //cek isbn/issn duplikat
-        if (await modelBuku.checkIsbnIssnCreate(data)) {
+        if (await Buku.checkIsbnIssnCreate(data)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'ISBN/ISSN sudah ada')
@@ -238,13 +237,13 @@ router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, 
             }
         }
 
-        await modelBuku.store(data)
+        await Buku.store(data)
         req.flash('success', 'Buku berhasil ditambahkan')
         res.redirect('/pustakawan/buku')
     } catch (err) {
         deleteUploadedFile(req.file)
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/buku')
     }
 })
@@ -289,7 +288,7 @@ router.post('/create-batch-buku', authPustakawan, uploadBatch.array('files'), as
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
         const rows = xlsx.utils.sheet_to_json(sheet)
         
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
 
         const getIdRak = (kode_rak) => {
             if (!kode_rak) return null
@@ -334,13 +333,13 @@ router.post('/create-batch-buku', authPustakawan, uploadBatch.array('files'), as
                 return res.redirect('/pustakawan/buku')
             }
 
-            if (await modelBuku.checkNoKlasifikasiCreate(data)) {
+            if (await Buku.checkNoKlasifikasiCreate(data)) {
                 req.flash('error', `No klasifikasi "${data.no_klasifikasi}" sudah digunakan, pada baris ke-${barisKe}`)
                 deleteUploadedFile(files)
                 return res.redirect('/pustakawan/buku')
             }
 
-            if (await modelBuku.checkIsbnIssnCreate(data)) {
+            if (await Buku.checkIsbnIssnCreate(data)) {
                 req.flash('error', `ISBN/ISSN "${data.isbn_issn}" sudah digunakan, pada baris ke-${barisKe}`)
                 deleteUploadedFile(files)
                 return res.redirect('/pustakawan/buku')
@@ -375,7 +374,7 @@ router.post('/create-batch-buku', authPustakawan, uploadBatch.array('files'), as
                 digunakanFotoNames.add(item.filename)
             }
 
-            await modelBuku.store(item.data)
+            await Buku.store(item.data)
         }
 
         for (const file of imageFiles) {
@@ -411,9 +410,9 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
         // mengambil semua data rak
-        const rak = await modelRak.getAll()
+        const rak = await Rak.getAll()
         // mengambil semua data buku berdasarkan id
-        const buku = await modelBuku.getById(id)
+        const buku = await Buku.getById(id)
 
         res.render('pengurus/pustakawan/buku/edit', { rak, buku, user })
     } catch(err) {
@@ -429,7 +428,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         const {id} = req.params
 
         // mengambil data gambar buku berdasarkan id
-        const buku = await modelBuku.getCoverById(id)
+        const buku = await Buku.getCoverById(id)
 
         // mendapatkan id pengguna dari session
         const userId = req.session.penggunaId
@@ -483,7 +482,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         }
 
         // memastikan no_klasifikasi tidak duplikat
-        if (await modelBuku.checkNoKlasifikasiEdit(data, id)) {
+        if (await Buku.checkNoKlasifikasiEdit(data, id)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'No Klasifikasi sudah ada')
@@ -491,7 +490,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         }
 
         // memastikan isbn/issn tidak duplikat
-        if (await modelBuku.checkIsbnIssnEdit(data, id)) {
+        if (await Buku.checkIsbnIssnEdit(data, id)) {
             deleteUploadedFile(req.file)
 
             req.flash('error', 'ISBN/ISSN sudah ada')
@@ -519,7 +518,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto_cover'), async (r
         // menghapus foto lama jika ada foto baru yang diupload
         if (req.file) deleteOldPhoto(buku.foto_cover)
 
-        await modelBuku.update(id, data)
+        await Buku.update(id, data)
         req.flash('success', 'Buku berhasil diperbarui')
         res.redirect('/pustakawan/buku')
     } catch (err) {
@@ -538,12 +537,12 @@ router.post('/delete/:id', authPustakawan, async (req, res) => {
         const userId = req.session.penggunaId
         const user = await modelPengguna.getNamaPenggunaById(userId)
 
-        await modelBuku.softDelete(user, id)
+        await Buku.softDelete(user, id)
         req.flash('success', 'Buku berhasil dihapus')
         res.redirect('/pustakawan/buku')
     } catch (err) {
-        console.log(err)
-        req.flash('error', err.message)
+        console.error(err)
+        req.flash('error', "Internal Server Error")
         res.redirect('/pustakawan/buku')
     }
 })
