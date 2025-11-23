@@ -4,6 +4,7 @@ const xlsx = require('xlsx')
 const multer = require('multer')
 const Koran = require('../../../models/Koran')
 const PenerbitKoran = require('../../../models/PenerbitKoran')
+const Pegawai = require('../../../models/Pegawai')
 const {authPustakawan} = require('../.././../middlewares/auth')
 
 
@@ -11,8 +12,7 @@ const uploadExcel = multer({ storage: multer.memoryStorage() })
 
 router.get('/', authPustakawan, async (req, res) => {
     try {
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
 
         const page = parseInt(req.query.page) || 1
         const limit = 20
@@ -27,14 +27,14 @@ router.get('/', authPustakawan, async (req, res) => {
             const filters = { id_penerbit_koran: flashedIdPenerbit, tahun: flashedTahun, bulan: flashedBulan }
             const koran = await Koran.searchKoranTampil(filters)
             const totalHalaman = 1
-            return res.render('pengurus/pustakawan/koran/koran/index', { user, koran, page: 1, totalHalaman, filters, penerbitList })
+            return res.render('pustakawan/koran/koran/index', { pegawai, koran, page: 1, totalHalaman, filters, penerbitList })
         }
 
         const koran = await Koran.getKoran(limit, offset)
         const totalKoran = koran.length
         const totalHalaman = Math.ceil(totalKoran / limit)
 
-        res.render('pengurus/pustakawan/koran/koran/index', { user, koran, page, totalHalaman, filters: { id_penerbit_koran: '', tahun: '', bulan: '' }, penerbitList })
+        res.render('pustakawan/koran/koran/index', { pegawai, koran, page, totalHalaman, filters: { id_penerbit_koran: '', tahun: '', bulan: '' }, penerbitList })
 
     } catch (err) {
         console.error(err)
@@ -59,10 +59,9 @@ router.post('/search', authPustakawan, async (req, res) => {
 
 router.get('/buat', authPustakawan, async (req, res) => {
     try {
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const penerbitList = await PenerbitKoran.getAll()
-        res.render('pengurus/pustakawan/koran/koran/buat', { user, penerbitList, data: req.flash('data')[0] })
+        res.render('pustakawan/koran/koran/buat', { pegawai, penerbitList, data: req.flash('data')[0] })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -73,8 +72,7 @@ router.get('/buat', authPustakawan, async (req, res) => {
 router.get('/:id', authPustakawan, async (req, res) => {
     try {
         const { id } = req.params
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const koran = await Koran.getKoranById(id)
 
         if (!koran) {
@@ -82,7 +80,7 @@ router.get('/:id', authPustakawan, async (req, res) => {
             return res.redirect('/pustakawan/koran')
         }
         
-        res.render('pengurus/pustakawan/koran/koran/detail', { user, koran })
+        res.render('pustakawan/koran/koran/detail', { pegawai, koran })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -93,9 +91,8 @@ router.get('/:id', authPustakawan, async (req, res) => {
 router.post('/create', authPustakawan, async (req, res) => {
     try {
         const { id_penerbit_koran, tahun, bulan } = req.body
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-        const data = { id_penerbit_koran, tahun, bulan, dibuat_oleh: user.nama }
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
+        const data = { id_penerbit_koran, tahun, bulan, dibuat_oleh: pegawai.nama }
 
         await Koran.store(data)
         req.flash('success', 'Koran berhasil dibuat')
@@ -114,8 +111,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
             return res.redirect('/pustakawan/koran')
         }
 
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
 
         const workbook = xlsx.read(req.file.buffer, { type: 'buffer' })
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -164,15 +160,10 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
             bulan = mapped
 
             const key = nama_penerbit.toLowerCase()
-            let idPenerbit = nameToId.get(key)
+            const idPenerbit = nameToId.get(key)
             if (!idPenerbit) {
-                const ins = await PenerbitKoran.store({ nama_penerbit })
-                idPenerbit = ins && ins.insertId ? ins.insertId : null
-                if (!idPenerbit) {
-                    req.flash('error', `Gagal membuat penerbit baru pada baris ke-${barisKe}`)
-                    return res.redirect('/pustakawan/koran')
-                }
-                nameToId.set(key, idPenerbit)
+                req.flash('error', `Penerbit "${nama_penerbit}" tidak ditemukan pada baris ke-${barisKe}`)
+                return res.redirect('/pustakawan/koran')
             }
 
             const exists = await Koran.checkKoran({ id_penerbit_koran: idPenerbit, tahun, bulan })
@@ -181,7 +172,7 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
                 return res.redirect('/pustakawan/koran')
             }
 
-            data = { id_penerbit_koran: idPenerbit, tahun, bulan, dibuat_oleh: user.nama }
+            const data = { id_penerbit_koran: idPenerbit, tahun, bulan, dibuat_oleh: pegawai.nama }
 
             await Koran.store(data)
         }
@@ -198,15 +189,14 @@ router.post('/create-batch-koran', authPustakawan, uploadExcel.single('file'), a
 router.get('/edit/:id', authPustakawan, async (req, res) => {
     try {
         const { id } = req.params
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const penerbitList = await PenerbitKoran.getAll()
         const koran = await Koran.getKoranById(id)
         if (!koran) {
             req.flash('error', 'Data tidak ditemukan')
             return res.redirect('/pustakawan/koran')
         }
-        res.render('pengurus/pustakawan/koran/koran/edit', { user, koran, penerbitList })
+        res.render('pustakawan/koran/koran/edit', { pegawai, koran, penerbitList })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -218,9 +208,8 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
     try {
         const { id } = req.params
         const { id_penerbit_koran, tahun, bulan, ketersediaan } = req.body
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-        const data = { id_penerbit_koran, tahun, bulan, ketersediaan, diubah_oleh: user.nama }
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
+        const data = { id_penerbit_koran, tahun, bulan, ketersediaan, diubah_oleh: pegawai.nama }
 
         if (!data.id_penerbit_koran || !data.tahun || !data.bulan) {
             req.flash('error', 'Penerbit, tahun, dan bulan wajib diisi')
@@ -240,10 +229,9 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
 router.post('/delete/:id', authPustakawan, async (req, res) => {
     try {
         const { id } = req.params
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         
-        await Koran.softDelete(user, id)
+        await Koran.softDelete(pegawai, id)
         req.flash('success', 'Koran berhasil dihapus')
         res.redirect('/pustakawan/koran')
     } catch (err) {
