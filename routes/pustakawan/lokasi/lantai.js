@@ -2,43 +2,38 @@ const express = require('express')
 const router = express.Router()
 //import model lantai 
 const Lantai = require('../../../models/Lantai')
-// import model pengguna
+// import model pegawai
+const Pegawai = require('../../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
 const {authPustakawan} = require('../.././../middlewares/auth')
 
 //menampilakn semua data lantai
 router.get('/', authPustakawan, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil semua data lantai
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const data = await Lantai.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/lantai/index', {data, user})
+        res.render('pustakawan/lokasi/lantai/index', {data, pegawai})
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
-        return res.redirect('/pengurus/lantai')
+            return res.redirect('/pustakawan/dashboard')
     }
 })
 
 //menampilkan halaman untuk menambahkan data lantai
 router.get('/buat', authPustakawan, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
 
-        res.render('pengurus/pustakawan/lokasi/lantai/buat', { 
-            user,
+        res.render('pustakawan/lokasi/lantai/buat', { 
+            pegawai,
             data: req.flash('data')[0]
         })
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
-        return res.redirect('/pengurus/lantai')
+        return res.redirect('/pustakawan/dashboard')
     }
 })
 
@@ -78,17 +73,11 @@ router.post('/create', authPustakawan, async (req, res) => {
 //menampilkan halaman untuk mengedit kode lantai
 router.get('/edit/:id', authPustakawan, async(req, res) => {
     try {
-        // destructuring req.params
         const {id} = req.params
-
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil data lantai berdasarkan id
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const data = await Lantai.getById(id)
 
-        res.render('pengurus/pustakawan/lokasi/lantai/edit', {data, user})
+        res.render('pustakawan/lokasi/lantai/edit', {data, pegawai})
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")

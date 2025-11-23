@@ -4,21 +4,18 @@ const router = express.Router()
 const Ruangan = require('../../../models/Ruangan')
 //import model lantai
 const Lantai = require('../../../models/Lantai')
-//import model pengguna
+//import model pegawai
+const Pegawai = require('../../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
 const {authPustakawan} = require('../.././../middlewares/auth')
 
 //menampilakn semua data ruangan
 router.get('/', authPustakawan, async(req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengabil semua data ruangan
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const data = await Ruangan.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/ruangan/index', {data, user})
+        res.render('pustakawan/lokasi/ruangan/index', {data, pegawai})
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -29,16 +26,12 @@ router.get('/', authPustakawan, async(req, res) => {
 //menampilkan halaman untuk menambahkan data ruangan
 router.get('/buat', authPustakawan, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil semua data lantai
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const lantai = await Lantai.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/ruangan/buat', { 
+        res.render('pustakawan/lokasi/ruangan/buat', { 
             lantai, 
-            user,
+            pegawai,
             data: req.flash('data')[0]
         })
     } catch(err) {
@@ -89,19 +82,12 @@ router.post('/create', authPustakawan, async(req, res) => {
 
 router.get('/edit/:id', authPustakawan, async (req, res) => {
     try {
-        // destructuring req.params
         const {id} = req.params
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil data ruanagn berdasarakn id
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const data = await Ruangan.getById(id)
-
-        // mengambil semua data lantai
         const lantai = await Lantai.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/ruangan/edit', {data, lantai, user})
+        res.render('pustakawan/lokasi/ruangan/edit', {data, lantai, pegawai})
     } catch(err) {
         console.log(err)
         req.flash('error', "Data ruangan tidak ditemukan")

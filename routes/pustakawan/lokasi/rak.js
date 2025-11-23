@@ -4,7 +4,8 @@ const router = express.Router()
 const Rak = require('../../../models/Rak')
 //import model ruangan 
 const Ruangan = require('../../../models/Ruangan')
-// import model pengguna
+// import model pegawai
+const Pegawai = require('../../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
 const {authPustakawan} = require('../.././../middlewares/auth')
 
@@ -12,14 +13,10 @@ const {authPustakawan} = require('../.././../middlewares/auth')
 //menampilakn semua data rak
 router.get('/', authPustakawan, async(req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil semua data rak
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const data = await Rak.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/rak/index', {data, user})
+        res.render('pustakawan/lokasi/rak/index', {data, pegawai})
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -29,16 +26,12 @@ router.get('/', authPustakawan, async(req, res) => {
 
 router.get('/buat', authPustakawan, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil semua data ruangan
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const ruangan = await Ruangan.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/rak/buat', {
+        res.render('pustakawan/lokasi/rak/buat', {
             ruangan, 
-            user,
+            pegawai,
             data: req.flash('data')[0]
         })
     } catch (err) {
@@ -74,18 +67,12 @@ router.post('/create', authPustakawan, async(req, res) => {
 
 router.get('/edit/:id', authPustakawan, async (req, res) => {
     try {
-        // destructuring req.params
         const {id} = req.params
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
-
-        // mengambil data rak berdasarkan id
+        const pegawai = await Pegawai.getNama(req.session.pegawaiId)
         const rak = await Rak.getById(id)
-        // mengambil semua data ruangan
         const ruangan = await Ruangan.getAll()
 
-        res.render('pengurus/pustakawan/lokasi/rak/edit', {rak, ruangan, user})
+        res.render('pustakawan/lokasi/rak/edit', {rak, ruangan, pegawai})
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
