@@ -1,6 +1,6 @@
-<%- include('../../../../partials/header/__headerDashboard.ejs', { title: 'Tambah Nama penerbit Koran' }) %>
-<%- include('../../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Tambah Nama penerbit Koran' }) %>
+<%- include('../../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -9,11 +9,20 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title">Tambah Penerbit Koran</h4>
-                  <form action="/pustakawan/penerbit-koran/create" method="POST" data-loading>
+                  <form action="/pustakawan/penerbit-koran/create" method="POST" enctype="multipart/form-data" data-loading>
                     <div class="form-group">
                       <label for="nama_penerbit">Nama Penerbit Koran</label>
                       <input type="text" class="form-control" id="nama_penerbit" name="nama_penerbit" placeholder="Masukkan nama Penerbit Koran, contoh: 'Jawa Pos'" value="<%= (typeof data != 'undefined' && data.nama_penerbit) || '' %>" required>
                     </div>
+
+                    <div class="form-group">
+                      <label for="foto_penerbit">Foto Penerbit Koran</label>
+                      <input type="file" class="form-control" id="foto_penerbit" name="foto" accept="image/*" data-preview="previewTambah" required>
+                      <div class="mt-2">
+                        <img id="previewTambah" src="#" alt="preview" style="height:300px;border-radius:8px;display:none;cursor:zoom-in;" class="img-click-preview">
+                      </div>
+                    </div>
+
                     <div class="d-flex">
                       <button type="submit" class="btn btn-primary mr-2">Simpan</button>
                       <a href="/pustakawan/penerbit-koran" class="btn btn-light" data-loading>Kembali</a>
@@ -26,4 +35,20 @@
     </div>
 </div>
 
-<%- include('../../../../partials/script/__scriptDashboard.ejs') %>
+<div class="modal fade modal-below-navbar modal-top" id="globalImagePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pratinjau Gambar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <img id="globalImagePreviewEl" src="" alt="preview" style="width:100%;height:auto;display:block;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../../../partials/script/__script-dashboard.ejs') %>

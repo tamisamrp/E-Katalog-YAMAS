@@ -30,6 +30,8 @@ const koran = require('./routes/pustakawan/koran/koran')
 const lantaiRouter = require('./routes/pustakawan/lokasi/lantai')
 const ruanganRouter = require('./routes/pustakawan/lokasi/ruangan')
 const rakRouter = require('./routes/pustakawan/lokasi/rak')
+const bahasaRouter = require('./routes/pustakawan/data-induk/bahasa')
+const kategoriRouter = require('./routes/pustakawan/data-induk/kategori')
 
 var app = express();
 
@@ -83,6 +85,8 @@ app.use('/pustakawan/koran', koran)
 app.use('/pustakawan/lantai', lantaiRouter)
 app.use('/pustakawan/ruangan', ruanganRouter)
 app.use('/pustakawan/rak', rakRouter)
+app.use('/pustakawan/bahasa', bahasaRouter)
+app.use('/pustakawan/kategori', kategoriRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

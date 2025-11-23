@@ -1,0 +1,29 @@
+<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Edit Bahasa' }) %>
+<%- include('../../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../../partials/messages/__messages-dashboard.ejs') %>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Edit Bahasa</h4>
+                  <form action="/pustakawan/bahasa/update/<%= data.id %>" method="POST" data-loading>
+                    <div class="form-group">
+                      <label for="bahasa">Bahasa</label>
+                      <input type="text" class="form-control" id="bahasa" name="bahasa" value="<%= data.bahasa %>" placeholder="Masukkan bahasa, contoh: 'Indonesia'" required>
+                    </div>
+                    <div class="d-flex">
+                      <button type="submit" class="btn btn-primary mr-2">Simpan</button>
+                      <a href="/pustakawan/bahasa" class="btn btn-light" data-loading>Kembali</a>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../../../partials/script/__script-dashboard.ejs') %>

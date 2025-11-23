@@ -1,81 +1,82 @@
 const connection = require('../configs/database')
 
 class Kategori {
-    // mengambil semua data pada tabel lantai
+    // mengambil semua data pada tabel kategori
     static async getAll() {
         try {
-            const [rows] = await connection.query(`SELECT * FROM lantai ORDER BY id ASC`)
+            const [rows] = await connection.query(`SELECT * FROM kategori ORDER BY id ASC`)
             return rows
         } catch (err) {
             throw err
         }
     }
 
-    // menyimpan data baru pada tabel lantai
+    // menyimpan data baru pada tabel kategori
     static async store(data) {
         try {
-            const [result] = await connection.query(`INSERT INTO lantai SET ?`, [data])
+            const [result] = await connection.query(`INSERT INTO kategori SET ?`, [data])
             return result
         } catch (err) {
             throw err
         }
     }
 
-    // mengupdate data pada tabel lantai berdasarkan id
+    // mengupdate data pada tabel kategori berdasarkan id
     static async update(data, id) {
         try {
-            const [result] = await connection.query(`UPDATE lantai SET ? WHERE id = ?`, [data, id])
+            const [result] = await connection.query(`UPDATE kategori SET ? WHERE id = ?`, [data, id])
             return result
         } catch (err) {
             throw err
         }
     }
 
-    // mengambil satu data lantai berdasarkan id
+    // mengambil satu data kategori berdasarkan id
     static async getById(id) {
         try {
-            const [rows] = await connection.query(`SELECT * FROM lantai WHERE id = ?`, [id])
+            const [rows] = await connection.query(`SELECT * FROM kategori WHERE id = ?`, [id])
             return rows[0]
         } catch (err) {
             throw err
         }
     }
 
-    // menghapus data pada tabel lantai berdasarkan id
+    // menghapus data pada tabel kategori berdasarkan id
     static async delete(id) {
         try {
-            const [result] = await connection.query(`DELETE FROM lantai WHERE id = ?`, [id])
+            const [result] = await connection.query(`DELETE FROM kategori WHERE id = ?`, [id])
             return result
         } catch (err) {
             throw err
         }
     }
 
-    // memeriksa apakah kode_lantai sudah ada untuk create
-    static async checkLantaiCreate(data) {
+    // memeriksa apakah kategori sudah ada untuk create
+    static async checkKategoriCreate(data) {
         try {
-            const [rows] = await connection.query(`SELECT kode_lantai FROM lantai WHERE kode_lantai = ?`, [data.kode_lantai])
+            const [rows] = await connection.query(`SELECT kategori FROM kategori WHERE kategori = ?`, [data.kategori])
             return rows.length > 0
         } catch (err) {
             throw err
         }
     }
 
-    // memeriksa apakah kode_lantai sudah ada untuk update
-    static async checkLantaiUpdate(data, id) {
+    // memeriksa apakah kategori sudah ada untuk update
+    static async checkKategoriUpdate(data, id) {
         try {
-            const [rows] = await connection.query(`SELECT kode_lantai FROM lantai WHERE kode_lantai = ? and id != ?`, [data.kode_lantai, id])
+            const [rows] = await connection.query(`SELECT kategori FROM kategori WHERE kategori = ? and id != ?`, [data.kategori, id])
             return rows.length > 0
         } catch (err) {
             throw err
         }
     }
 
-    // memeriksa apakah lantai sudah digunakan
-    static async checkLantaiUsed(id) {
+    // memeriksa apakah kategori sudah digunakan
+    static async checkKategoriUsed(id) {
         try {
-            const [rows] = await connection.query(`SELECT id FROM ruangan WHERE id_lantai = ?`, [id])
-            return rows.length > 0
+            const [rowsBuku] = await connection.query(`SELECT id FROM buku WHERE id_kategori = ?`, [id])
+            const [rowsMajalah] = await connection.query(`SELECT id FROM majalah WHERE id_kategori = ?`, [id])
+            return rowsBuku.length > 0 || rowsMajalah.length > 0
         } catch (err) {
             throw err
         }

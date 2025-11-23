@@ -63,6 +63,15 @@ class PenerbitKoran {
         }
     }
 
+    static async getFotoById(id) {
+        try {
+            const [rows] = await connection.query(`select foto from penerbit_koran where id = ?`, [id])
+            return rows[0]
+        } catch (err) {
+            throw err
+        }
+    }
+
     static async delete(id) {
         try {
             const [result] = await connection.query(`delete from penerbit_koran where id = ?`, [id])
