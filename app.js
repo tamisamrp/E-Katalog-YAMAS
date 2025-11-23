@@ -7,6 +7,9 @@ require('dotenv').config()
 var session = require('express-session')
 var flash = require('express-flash')
 
+//routes index
+const indexRouter = require('./routes/index')
+
 //routes auth
 const authRouter = require('./routes/auth')
 
@@ -55,6 +58,9 @@ app.use(session({
 
 //middleware untuk mengirim pesan
 app.use(flash())
+
+//routes index
+app.use('/', indexRouter)
 
 //routes auth
 app.use('/', authRouter)
