@@ -1,6 +1,6 @@
-<%- include('../../../partials/header/__headerDashboard.ejs', { title: 'Data Majalah' }) %>
-<%- include('../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../partials/header/__header-dashboard.ejs', { title: 'Data Majalah' }) %>
+<%- include('../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -18,10 +18,13 @@
                         </div>
 
                         <form action="/pustakawan/majalah/search" method="POST" class="mb-3" data-loading>
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="judul" placeholder="Cari judul majalah..." value="<%= (typeof keyword !== 'undefined' && keyword) ? keyword : '' %>">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="submit">Cari</button>
+                            <div class="form-row align-items-end filter-row">
+                                <div class="col-12 col-md-9 col-lg-10 mb-2">
+                                    <input type="text" class="form-control" name="judul" placeholder="Cari judul majalah..." value="<%= (typeof keyword !== 'undefined' && keyword) ? keyword : '' %>">
+                                </div>
+                                <div class="col-12 col-md-3 col-lg-2 mb-2 filter-action-col">
+                                    <button class="btn btn-primary btn-filter-search" type="submit">Cari</button>
+                                    <a href="/pustakawan/majalah" class="btn btn-sm btn-outline-danger btn-delete" data-loading>Hapus</a>
                                 </div>
                             </div>
                         </form>
@@ -145,4 +148,4 @@
     </div>
 </div>
 
-<%- include('../../../partials/script/__scriptDashboard.ejs') %>
+<%- include('../../partials/script/__script-dashboard.ejs') %>

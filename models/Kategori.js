@@ -81,6 +81,32 @@ class Kategori {
             throw err
         }
     }
+
+    static async findByName(name) {
+        if (!name) return null
+        try {
+            const [rows] = await connection.query(`SELECT * FROM kategori WHERE LOWER(kategori) = LOWER(?) LIMIT 1`, [name])
+            return rows[0] || null
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async findOrCreateByName(name) {
+        if (!name) return null
+        const trimmed = name.trim()
+        if (!trimmed) return null
+
+        const existing = await this.findByName(trimmed)
+        if (existing) return existing
+
+        try {
+            const [result] = await connection.query(`INSERT INTO kategori (kategori) VALUES (?)`, [trimmed])
+            return { id: result.insertId, kategori: trimmed }
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Kategori
