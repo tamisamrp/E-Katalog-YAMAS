@@ -10,7 +10,7 @@
                 <div class="card-body">
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title mb-0">Data Penerbit koran</h4>
-                    <a href="/pustakawan/penerbit-koran/buat" class="btn btn-primary btn-sm" data-loading>Tambah Penerbit Koran</a>
+                    <a href="/pustakawan/penerbit/buat" class="btn btn-primary btn-sm" data-loading>Tambah Penerbit Koran</a>
                   </div>
                   <div>
                     <table class="table table-hover table-stacked">
@@ -37,8 +37,8 @@
                               <td data-label="Penerbit koran"><%= item.nama_penerbit %></td>
                               <td class="text-right" data-label="Aksi">
                                 <div class="btn-actions">
-                                  <a href="/pustakawan/penerbit-koran/edit/<%= item.id %>" class="btn btn-sm btn-outline-info" data-loading>Edit</a>
-                                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-url="/pustakawan/penerbit-koran/hapus/<%= item.id %>">Hapus</button>
+                                  <a href="/pustakawan/penerbit/edit/<%= item.id %>" class="btn btn-sm btn-outline-info" data-loading>Edit</a>
+                                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-url="/pustakawan/penerbit/hapus/<%= item.id %>">Hapus</button>
                                 </div>
                               </td>
                             </tr>
