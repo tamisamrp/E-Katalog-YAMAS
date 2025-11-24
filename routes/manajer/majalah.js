@@ -15,9 +15,9 @@ const deleteOldPhoto = (oldPhoto) => {
 
 router.get('/', authManajer, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
 
         const flashedKeyword = req.flash('keyword')[0]
         const page = parseInt(req.query.page) || 1
@@ -28,14 +28,14 @@ router.get('/', authManajer, async (req, res) => {
             const majalah = await Majalah.searchJudulMajalahHapus(flashedKeyword)
             const totalMajalah = majalah.length
             const totalHalaman = 1
-            return res.render('pengurus/manajer/majalah/index', {majalah, user, page: 1, totalHalaman, keyword: flashedKeyword})
+            return res.render('manajer/majalah/index', {majalah, pegawai, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
         const majalah = await Majalah.getMajalahHapus(limit, offset)
         const totalMajalah = majalah.length
         const totalHalaman = Math.ceil(totalMajalah / limit)
 
-        res.render('pengurus/manajer/majalah/index', { majalah, user, page, totalHalaman })
+        res.render('manajer/majalah/index', { majalah, pegawai, page, totalHalaman })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -59,13 +59,13 @@ router.get('/:id', authManajer, async (req, res) => {
     try {
         // mengambil id dari params
         const {id} = req.params
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
         
         const majalah = await Majalah.getByIdHapus(id)
 
-        res.render('pengurus/manajer/majalah/detail', { majalah, user })
+        res.render('manajer/majalah/detail', { majalah, pegawai })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
