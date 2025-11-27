@@ -4,7 +4,8 @@ const path = require('path')
 const fs = require('fs')
 // import model buku
 const Buku = require('../../models/Buku')
-// import model pengguna
+// import model pegawai
+const Pegawai = require('../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
 const {authManajer} = require('../../middlewares/auth')
 
@@ -17,9 +18,9 @@ const deleteOldPhoto = (oldPhoto) => {
 
 router.get('/', authManajer, async (req, res) => {
     try {
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
 
         const flashedKeyword = req.flash('keyword')[0]
         const page = parseInt(req.query.page) || 1
@@ -30,14 +31,14 @@ router.get('/', authManajer, async (req, res) => {
             const buku = await Buku.searchJudulBukuHapus(flashedKeyword)
             const totalBuku = buku.length
             const totalHalaman = 1
-            return res.render('pengurus/manajer/buku/index', {buku, user, page: 1, totalHalaman, keyword: flashedKeyword})
+            return res.render('manajer/buku/index', {buku, pegawai, page: 1, totalHalaman, keyword: flashedKeyword})
         }
 
         const buku = await Buku.getBukuHapus(limit, offset)
         const totalBuku = buku.length
         const totalHalaman = Math.ceil(totalBuku / limit)
 
-        res.render('pengurus/manajer/buku/index', { buku, user, page, totalHalaman })
+        res.render('manajer/buku/index', { buku, pegawai, page, totalHalaman })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -60,13 +61,13 @@ router.post('/search', authManajer, async (req, res) => {
 router.get('/:id', authManajer, async (req, res) => {
     try {
         const {id} = req.params
-        // mendapatkan id pengguna dari session
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
 
         const buku = await Buku.getByIdHapus(id)
 
-        res.render('pengurus/manajer/buku/detail', { buku, user })
+        res.render('manajer/buku/detail', { buku, pegawai })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")

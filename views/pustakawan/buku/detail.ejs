@@ -1,6 +1,6 @@
-<%- include('../../../partials/header/__headerDashboard.ejs', { title: 'Detail Buku' }) %>
-<%- include('../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../partials/header/__header-dashboard.ejs', { title: 'Detail Buku' }) %>
+<%- include('../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -38,7 +38,10 @@
                                         <span class="info-label">Nomor Klasifikasi: <%= (buku && buku.no_klasifikasi) ? buku.no_klasifikasi : '-' %></span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">Bahasa: <%= (buku && buku.bahasa) ? buku.bahasa : '-' %></span>
+                                        <span class="info-label">Bahasa: <%= (buku && buku.nama_bahasa) ? buku.nama_bahasa : '-' %></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Kategori: <%= (buku && buku.nama_kategori) ? buku.nama_kategori : '-' %></span>
                                     </div>
                                     <div class="info-item">
                                         <span class="info-label">Tahun Terbit: <%= (buku && buku.tahun_terbit) ? buku.tahun_terbit : '-' %></span>
@@ -119,4 +122,4 @@
     </div>
 </div>
 
-<%- include('../../../partials/script/__scriptDashboard.ejs') %>
+<%- include('../../partials/script/__script-dashboard.ejs') %>

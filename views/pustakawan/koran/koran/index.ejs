@@ -18,7 +18,7 @@
                         </div>
 
                         <form action="/pustakawan/koran/search" method="POST" class="mb-3" data-loading>
-                            <div class="form-row">
+                            <div class="form-row align-items-end filter-row">
                                 <div class="col-md-5 mb-2">
                                     <select class="form-control" name="id_penerbit_koran">
                                         <option value="">Pilih Penerbit</option>
@@ -46,8 +46,9 @@
                                         <% }) %>
                                     </select>
                                 </div>
-                                <div class="col-md-1 mb-2 d-flex">
-                                    <button class="btn btn-primary btn-block w-100" type="submit">Cari</button>
+                                <div class="col-md-2 mb-2 filter-action-col">
+                                    <button class="btn btn-primary btn-filter-search" type="submit">Cari</button>
+                                    <a href="/pustakawan/koran" class="btn btn-sm btn-outline-danger btn-delete">Hapus</a>
                                 </div>
                             </div>
                         </form>

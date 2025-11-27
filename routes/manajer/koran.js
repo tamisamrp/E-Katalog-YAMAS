@@ -4,15 +4,17 @@ const router = express.Router()
 const Koran = require('../../models/Koran')
 // import model penerbit koran
 const PenerbitKoran = require('../../models/PenerbitKoran')
-// import model pengguna
+// import model pegawai
+const Pegawai = require('../../models/Pegawai')
 // import middleware untuk mengecek peran pengguna login
 const {authManajer} = require('../../middlewares/auth')
 
 
 router.get('/', authManajer, async (req, res) => {
     try {
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
 
         const flashedIdPenerbit = req.flash('id_penerbit_koran')[0]
         const flashedTahun = req.flash('tahun')[0]
@@ -27,14 +29,14 @@ router.get('/', authManajer, async (req, res) => {
             const filters = { id_penerbit_koran: flashedIdPenerbit, tahun: flashedTahun, bulan: flashedBulan }
             const koran = await Koran.searchKoranHapus(filters)
             const totalHalaman = 1
-            return res.render('pengurus/manajer/koran/index', { koran, user, page: 1, totalHalaman, filters, penerbitList })
+            return res.render('manajer/koran/index', { koran, pegawai, page: 1, totalHalaman, filters, penerbitList })
         }
 
         const koran = await Koran.getKoranHapus(limit, offset)
         const totalKoran = koran.length
         const totalHalaman = Math.ceil(totalKoran / limit)
 
-        res.render('pengurus/manajer/koran/index', { koran, user, page, totalHalaman, penerbitList, filters: { id_penerbit_koran: '', tahun: '', bulan: '' } })
+        res.render('manajer/koran/index', { koran, pegawai, page, totalHalaman, penerbitList, filters: { id_penerbit_koran: '', tahun: '', bulan: '' } })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
@@ -59,10 +61,11 @@ router.post('/search', authManajer, async (req, res) => {
 router.get('/:id', authManajer, async (req, res) => {
     try {
         const { id } = req.params
-        const userId = req.session.penggunaId
-        const user = await modelPengguna.getNamaPenggunaById(userId)
+        // mendapatkan data pegawai dari session
+        const pegawaiId = req.session.pegawaiId
+        const pegawai = await Pegawai.getNama(pegawaiId)
         const koran = await Koran.getByIdHapus(id)
-        res.render(`pengurus/manajer/koran/detail`, { koran, user })
+        res.render('manajer/koran/detail', { koran, pegawai })
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")

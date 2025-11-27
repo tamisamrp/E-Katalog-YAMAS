@@ -74,7 +74,7 @@ router.get('/buat', authPustakawan, async (req, res) => {
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     }
 })
 
@@ -87,14 +87,14 @@ router.post('/create', authPustakawan, upload.single('foto'), async (req, res) =
             deleteUploadedFile(req.file)
             req.flash("error", "Penerbit Koran tidak boleh kosong")
             req.flash('data', req.body)
-            return res.redirect('/pustakawan/penerbit-koran/buat')
+            return res.redirect('/pustakawan/penerbit/buat')
         }
 
         if (!req.file) {
             deleteUploadedFile(req.file)
             req.flash("error", "Foto tidak boleh kosong")
             req.flash('data', req.body)
-            return res.redirect('/pustakawan/penerbit-koran/buat')
+            return res.redirect('/pustakawan/penerbit/buat')
         }
 
         // mengecek format file yang diinput
@@ -103,14 +103,14 @@ router.post('/create', authPustakawan, upload.single('foto'), async (req, res) =
             deleteUploadedFile(req.file)
             req.flash('error', 'Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan')
             req.flash('data', req.body)
-            return res.redirect('/pustakawan/penerbit-koran/buat')
+            return res.redirect('/pustakawan/penerbit/buat')
         }
 
         if (await PenerbitKoran.checkPenerbitKoranCreate(data)) {
             deleteUploadedFile(req.file)
             req.flash("error", "Penerbit Koran sudah dibuat")
             req.flash('data', req.body)
-            return res.redirect('/pustakawan/penerbit-koran/buat')
+            return res.redirect('/pustakawan/penerbit/buat')
         }
 
         //convert image to webp and compress when < 500kb
@@ -123,12 +123,12 @@ router.post('/create', authPustakawan, upload.single('foto'), async (req, res) =
 
         await PenerbitKoran.store(data)
         req.flash('success', 'Data Berhasil ditambahkan')
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     } catch (err) {
         deleteUploadedFile(req.file)
         console.error(err)
         req.flash('error', "Internal Server Error")
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     }
 })
 
@@ -147,7 +147,7 @@ router.get('/edit/:id', authPustakawan, async (req, res) => {
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     }
 })
 
@@ -165,7 +165,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto'), async (req, re
             deleteUploadedFile(req.file)
             req.flash("error", "Penerbit Koran tidak boleh kosong")
             req.flash('data', req.body)
-            return res.redirect(`/pustakawan/penerbit-koran/edit/${id}`)
+            return res.redirect(`/pustakawan/penerbit/edit/${id}`)
         }
 
         // mengecek format file yang diinput
@@ -175,7 +175,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto'), async (req, re
                 deleteUploadedFile(req.file)
                 req.flash('error', 'Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan')
                 req.flash('data', req.body)
-                return res.redirect(`/pustakawan/penerbit-koran/edit/${id}`)
+                return res.redirect(`/pustakawan/penerbit/edit/${id}`)
             }
         }
 
@@ -183,7 +183,7 @@ router.post('/update/:id', authPustakawan, upload.single('foto'), async (req, re
             deleteUploadedFile(req.file)
             req.flash("error", "Penerbit Koran sudah dibuat")
             req.flash('data', req.body)
-            return res.redirect(`/pustakawan/penerbit-koran/edit/${id}`)
+            return res.redirect(`/pustakawan/penerbit/edit/${id}`)
         }
 
         //convert image to webp and compress when < 500kb
@@ -202,12 +202,12 @@ router.post('/update/:id', authPustakawan, upload.single('foto'), async (req, re
 
         await PenerbitKoran.update(data, id)
         req.flash('success', 'Data berhasil diedit')
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     } catch (err) {
         deleteUploadedFile(req.file)
         console.error(err)
         req.flash('error', "Internal Server Error")
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     }
 })
 
@@ -217,7 +217,7 @@ router.post('/hapus/:id', authPustakawan, async (req, res) => {
 
         if (await PenerbitKoran.checkPenerbitKoranUsed(id)) {
             req.flash("error", "Penerbit Koran masih digunakan pada koran")
-            return res.redirect(`/pustakawan/penerbit-koran`)
+            return res.redirect(`/pustakawan/penerbit`)
         }
 
         // hapus foto sebelum hapus data
@@ -228,11 +228,11 @@ router.post('/hapus/:id', authPustakawan, async (req, res) => {
 
         await PenerbitKoran.delete(id)
         req.flash('success', 'Data berhasil dihapus')
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     } catch (err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
-        res.redirect('/pustakawan/penerbit-koran')
+        res.redirect('/pustakawan/penerbit')
     }
 })
 module.exports = router

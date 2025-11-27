@@ -1,6 +1,6 @@
-<%- include('../../../partials/header/__headerDashboard.ejs', { title: 'Detail Majalah' }) %>
-<%- include('../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../partials/header/__header-dashboard.ejs', { title: 'Detail Majalah' }) %>
+<%- include('../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -38,7 +38,10 @@
                                         <span class="info-label">Nomor Klasifikasi: <%= (majalah && majalah.no_klasifikasi) ? majalah.no_klasifikasi : '-' %></span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">Bahasa: <%= (majalah && majalah.bahasa) ? majalah.bahasa : '-' %></span>
+                                        <span class="info-label">Bahasa: <%= (majalah && majalah.nama_bahasa) ? majalah.nama_bahasa : '-' %></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Kategori: <%= (majalah && majalah.nama_kategori) ? majalah.nama_kategori : '-' %></span>
                                     </div>
                                     <div class="info-item">
                                         <span class="info-label">Tahun Terbit: <%= (majalah && majalah.tahun_terbit) ? majalah.tahun_terbit : '-' %></span>
@@ -117,4 +120,4 @@
     </div>
 </div>
 
-<%- include('../../../partials/script/__scriptDashboard.ejs') %>
+<%- include('../../partials/script/__script-dashboard.ejs') %>

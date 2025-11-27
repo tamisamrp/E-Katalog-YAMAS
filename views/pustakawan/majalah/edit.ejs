@@ -1,6 +1,6 @@
-<%- include('../../../partials/header/__headerDashboard.ejs', { title: 'Edit Majalah' }) %>
-<%- include('../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../partials/header/__header-dashboard.ejs', { title: 'Edit Majalah' }) %>
+<%- include('../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -26,9 +26,16 @@
                                 </div>
 
                             <div class="form-group">
-                                    <label for="bahasa">Bahasa</label>
-                                <input type="text" class="form-control" id="bahasa" name="bahasa" placeholder="Contoh: Indonesia" value="<%= majalah.bahasa || '' %>">
-                                </div>
+                                <label for="id_bahasa">Bahasa</label>
+                                <select class="form-control" id="id_bahasa" name="id_bahasa" required>
+                                    <option value="">Pilih Bahasa</option>
+                                    <% if (Array.isArray(bahasaList) && bahasaList.length) { %>
+                                        <% bahasaList.forEach(function(item){ %>
+                                            <option value="<%= item.id %>" <%= (Number(majalah.id_bahasa) === Number(item.id)) ? 'selected' : '' %>><%= item.bahasa %></option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
 
                             <div class="form-group">
                                     <label for="jumlah_halaman">Total Halaman</label>
@@ -49,6 +56,18 @@
                                     <label for="penerbit">Penerbit</label>
                                 <input type="text" class="form-control" id="penerbit" name="penerbit" placeholder="Contoh: Nama Penerbit" value="<%= majalah.penerbit || '' %>">
                                 </div>
+
+                            <div class="form-group">
+                                <label for="id_kategori">Kategori</label>
+                                <select class="form-control" id="id_kategori" name="id_kategori" required>
+                                    <option value="">Pilih Kategori</option>
+                                    <% if (Array.isArray(kategoriList) && kategoriList.length) { %>
+                                        <% kategoriList.forEach(function(item){ %>
+                                            <option value="<%= item.id %>" <%= (Number(majalah.id_kategori) === Number(item.id)) ? 'selected' : '' %>><%= item.kategori %></option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
 
                             <div class="form-group">
                                     <label for="sinopsis">Sinopsis</label>
@@ -111,4 +130,4 @@
     </div>
 </div>
 
-<%- include('../../../partials/script/__scriptDashboard.ejs') %>
+<%- include('../../partials/script/__script-dashboard.ejs') %>

@@ -285,22 +285,57 @@
     }
 }
 
-/* align search button inline with filters (koran page filter row) */
-.content-wrapper .card-body form .form-row > .col-md-1 .btn {
-    white-space: nowrap !important;
-    height: 100% !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+/* filter form alignment */
+.filter-row {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
 }
-@media (max-width: 575.98px) {
-    .content-wrapper .card-body form .form-row > .col-md-1 .btn {
-        height: auto !important;
+.filter-row > [class*="col-"] {
+    flex: 1 1 220px;
+    margin-bottom: 0 !important;
+}
+.filter-row .filter-action-col {
+    flex: 0 0 auto;
+}
+.filter-row .form-control {
+    width: 100%;
+}
+@media (max-width: 767.98px) {
+    .filter-row {
+        gap: .5rem;
+    }
+    .filter-row .filter-action-col {
+        width: 100%;
+        justify-content: flex-start !important;
+    }
+    .filter-row .filter-action-col .btn {
+        flex: 1 1 auto;
+        width: 100%;
     }
 }
 
+/* filter action buttons */
+.filter-row .filter-action-col {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: .6rem;
+}
+.filter-row .filter-action-col .btn {
+    white-space: nowrap !important;
+    min-height: 44px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: .95rem;
+    border-radius: 999px;
+    padding: 0 1.35rem;
+}
+.btn-filter-search {
+    box-shadow: 0 6px 14px rgba(15, 142, 200, 0.25);
+}
 /* force center alignment for action column - desktop only */
 @media (min-width: 576px) {
     .table th.text-right,

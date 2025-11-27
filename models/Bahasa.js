@@ -81,6 +81,16 @@ class Bahasa {
             throw err
         }
     }
+
+    static async findByName(name) {
+        if (!name) return null
+        try {
+            const [rows] = await connection.query(`SELECT * FROM bahasa WHERE LOWER(bahasa) = LOWER(?) LIMIT 1`, [name])
+            return rows[0] || null
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Bahasa

@@ -9,7 +9,7 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title">Edit Penerbit Koran</h4>
-                  <form action="/pustakawan/penerbit-koran/update/<%= penerbitKoran.id %>" method="POST" enctype="multipart/form-data" data-loading>
+                  <form action="/pustakawan/penerbit/update/<%= penerbitKoran.id %>" method="POST" enctype="multipart/form-data" data-loading>
                     <div class="form-group">
                       <label for="nama_penerbit">Nama Penerbit Koran</label>
                       <input type="text" class="form-control" id="nama_penerbit" name="nama_penerbit" value="<%= penerbitKoran.nama_penerbit %>" placeholder="Masukkan nama Penerbit Koran, contoh: 'Jawa Pos'" required>
@@ -29,7 +29,7 @@
 
                     <div class="d-flex">
                       <button type="submit" class="btn btn-primary mr-2">Simpan</button>
-                      <a href="/pustakawan/penerbit-koran" class="btn btn-light" data-loading>Kembali</a>
+                      <a href="/pustakawan/penerbit" class="btn btn-light" data-loading>Kembali</a>
                     </div>
                   </form>
                 </div>
