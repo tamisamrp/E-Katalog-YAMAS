@@ -6,10 +6,10 @@ const Pegawai = require('../../models/Pegawai')
 const Majalah = require('../../models/Majalah')
 // import model buku
 const Buku = require('../../models/Buku')
-// import model koran
-const Koran = require('../../models/Koran')
 // import middleware untuk mengecek peran pengguna login
 const {authManajer} = require('../../middlewares/auth')
+// import model koran
+const Koran = require('../../models/Koran')
 
 // router get dashboard manajer
 router.get('/', authManajer, async (req, res) => {
