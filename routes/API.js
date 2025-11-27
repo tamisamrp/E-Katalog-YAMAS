@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const modelBuku = require('../models/Buku')
 const modelMajalah = require('../models/Majalah')
-const Koran = require('../models/koran')
+const Koran = require('../models/Koran')
 const PenerbitKoran = require('../models/PenerbitKoran')
 
 router.post('/buku-majalah/search', async (req, res) => {
