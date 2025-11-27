@@ -11,6 +11,15 @@ class Buku {
         }
     }
 
+    static async getNewBukuAPI() {
+        try {
+            const [rows] = await connection.query(`SELECT b.id, b.judul, b.foto_cover, b.pengarang, 'Buku' AS tipe FROM buku b WHERE b.status_data = 'Tampil' ORDER BY b.dibuat_pada DESC LIMIT 4`)
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
     // mengambil detail buku berdasarkan id
     static async getDetailBuku(id) {
         try {
