@@ -1,6 +1,6 @@
-<%- include('../../../../partials/header/__headerDashboard.ejs', { title: 'Daftar Ruangan' }) %>
-<%- include('../../../../partials/nav-side/__nav-sidePengurus.ejs') %>
-<%- include('../../../../partials/messages/messagesDashboard.ejs') %>
+<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Daftar Ruangan' }) %>
+<%- include('../../../partials/nav-side/__nav-side-pustakawan.ejs') %>
+<%- include('../../../partials/messages/__messages-dashboard.ejs') %>
 
 <div class="main-panel">
     <div class="content-wrapper">
@@ -16,6 +16,7 @@
                     <table class="table table-hover table-stacked">
                       <thead>
                         <tr>
+                          <th>No</th>
                           <th>Kode Lantai</th>
                           <th>Kode Ruangan</th>
                           <th style="width: 160px;" class="text-right">Aksi</th>
@@ -23,8 +24,9 @@
                       </thead>
                       <tbody>
                         <% if (Array.isArray(data) && data.length) { %>
-                          <% data.forEach(function(item){ %>
+                          <% data.forEach(function(item, index){ %>
                             <tr>
+                              <td data-label="No"><%= index + 1 %></td>
                               <td data-label="Kode Lantai"><%= item.kode_lantai %></td>
                               <td data-label="Kode Ruangan"><%= item.kode_ruangan %></td>
                               <td class="text-right" data-label="Aksi">
@@ -37,7 +39,7 @@
                           <% }) %>
                         <% } else { %>
                           <tr>
-                            <td colspan="3" class="text-center">Belum ada data</td>
+                            <td colspan="4" class="text-center">Belum ada data</td>
                           </tr>
                         <% } %>
                       </tbody>
@@ -70,4 +72,4 @@
   </div>
 </div>
 
-<%- include('../../../../partials/script/__scriptDashboard.ejs') %>
+<%- include('../../../partials/script/__script-dashboard.ejs') %>

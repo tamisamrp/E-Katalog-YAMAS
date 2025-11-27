@@ -1,4 +1,4 @@
-<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Edit Lantai' }) %>
+<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Tambah Kategori' }) %>
 <%- include('../../../partials/nav-side/__nav-side-pustakawan.ejs') %>
 <%- include('../../../partials/messages/__messages-dashboard.ejs') %>
 
@@ -8,15 +8,15 @@
             <div class="col-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Edit Lantai</h4>
-                  <form action="/pustakawan/lantai/update/<%= data.id %>" method="POST" data-loading>
+                  <h4 class="card-title">Tambah Kategori</h4>
+                  <form action="/pustakawan/kategori/create" method="POST" data-loading>
                     <div class="form-group">
-                      <label for="kode_lantai">Kode Lantai</label>
-                      <input type="text" class="form-control" id="kode_lantai" name="kode_lantai" value="<%= data.kode_lantai %>" placeholder="Masukkan kode lantai, contoh: '001'" required>
+                      <label for="kategori">Kategori</label>
+                      <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Masukkan kategori, contoh: 'Fiksi'" value="<%= (typeof data != 'undefined' && data.kategori) || '' %>" required>
                     </div>
                     <div class="d-flex">
                       <button type="submit" class="btn btn-primary mr-2">Simpan</button>
-                      <a href="/pustakawan/lantai" class="btn btn-light" data-loading>Kembali</a>
+                      <a href="/pustakawan/kategori" class="btn btn-light" data-loading>Kembali</a>
                     </div>
                   </form>
                 </div>

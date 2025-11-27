@@ -1,4 +1,4 @@
-<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Daftar Rak' }) %>
+<%- include('../../../partials/header/__header-dashboard.ejs', { title: 'Daftar Bahasa' }) %>
 <%- include('../../../partials/nav-side/__nav-side-pustakawan.ejs') %>
 <%- include('../../../partials/messages/__messages-dashboard.ejs') %>
 
@@ -9,17 +9,15 @@
               <div class="card">
                 <div class="card-body">
                   <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="card-title mb-0">Data Rak</h4>
-                    <a href="/pustakawan/rak/buat" class="btn btn-primary btn-sm" data-loading>Tambah Rak</a>
+                    <h4 class="card-title mb-0">Data Bahasa</h4>
+                    <a href="/pustakawan/bahasa/buat" class="btn btn-primary btn-sm" data-loading>Tambah Bahasa</a>
                   </div>
                   <div>
                     <table class="table table-hover table-stacked">
                       <thead>
                         <tr>
                           <th>No</th>
-                          <th>Kode Lantai</th>
-                          <th>Kode Ruangan</th>
-                          <th>Kode Rak</th>
+                          <th>Bahasa</th>
                           <th style="width: 160px;" class="text-right">Aksi</th>
                         </tr>
                       </thead>
@@ -28,20 +26,18 @@
                           <% data.forEach(function(item, index){ %>
                             <tr>
                               <td data-label="No"><%= index + 1 %></td>
-                              <td data-label="Kode Lantai"><%= item.kode_lantai %></td>
-                              <td data-label="Kode Ruangan"><%= item.kode_ruangan %></td>
-                              <td data-label="Kode Rak"><%= item.kode_rak %></td>
-                              <td class="text-center" data-label="Aksi">
+                              <td data-label="Bahasa"><%= item.bahasa %></td>
+                              <td class="text-right" data-label="Aksi">
                                 <div class="btn-actions">
-                                  <a href="/pustakawan/rak/edit/<%= item.id %>" class="btn btn-sm btn-outline-info" data-loading>Edit</a>
-                                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-url="/pustakawan/rak/delete/<%= item.id %>">Hapus</button>
+                                  <a href="/pustakawan/bahasa/edit/<%= item.id %>" class="btn btn-sm btn-outline-info" data-loading>Edit</a>
+                                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-url="/pustakawan/bahasa/delete/<%= item.id %>">Hapus</button>
                                 </div>
                               </td>
                             </tr>
                           <% }) %>
                         <% } else { %>
                           <tr>
-                            <td colspan="5" class="text-center">Belum ada data</td>
+                            <td colspan="3" class="text-center">Belum ada data</td>
                           </tr>
                         <% } %>
                       </tbody>

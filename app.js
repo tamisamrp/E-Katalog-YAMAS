@@ -7,6 +7,9 @@ require('dotenv').config()
 var session = require('express-session')
 var flash = require('express-flash')
 
+//routes index
+const indexRouter = require('./routes/index')
+
 //routes auth
 const authRouter = require('./routes/auth')
 
@@ -27,6 +30,8 @@ const koran = require('./routes/pustakawan/koran/koran')
 const lantaiRouter = require('./routes/pustakawan/lokasi/lantai')
 const ruanganRouter = require('./routes/pustakawan/lokasi/ruangan')
 const rakRouter = require('./routes/pustakawan/lokasi/rak')
+const bahasaRouter = require('./routes/pustakawan/data-induk/bahasa')
+const kategoriRouter = require('./routes/pustakawan/data-induk/kategori')
 
 var app = express();
 
@@ -56,6 +61,9 @@ app.use(session({
 //middleware untuk mengirim pesan
 app.use(flash())
 
+//routes index
+app.use('/', indexRouter)
+
 //routes auth
 app.use('/', authRouter)
 
@@ -77,6 +85,8 @@ app.use('/pustakawan/koran', koran)
 app.use('/pustakawan/lantai', lantaiRouter)
 app.use('/pustakawan/ruangan', ruanganRouter)
 app.use('/pustakawan/rak', rakRouter)
+app.use('/pustakawan/bahasa', bahasaRouter)
+app.use('/pustakawan/kategori', kategoriRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
