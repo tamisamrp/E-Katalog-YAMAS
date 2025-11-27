@@ -6,12 +6,16 @@ var logger = require('morgan');
 require('dotenv').config()
 var session = require('express-session')
 var flash = require('express-flash')
+const cors = require('cors')
 
 //routes index
 const indexRouter = require('./routes/index')
 
 //routes auth
 const authRouter = require('./routes/auth')
+
+//routes API
+const APIRouter = require('./routes/API')
 
 //routes manajer
 const dashboardManajerRouter = require('./routes/manajer/dashboard')
@@ -34,6 +38,7 @@ const bahasaRouter = require('./routes/pustakawan/data-induk/bahasa')
 const kategoriRouter = require('./routes/pustakawan/data-induk/kategori')
 
 var app = express();
+app.use(cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -66,6 +71,9 @@ app.use('/', indexRouter)
 
 //routes auth
 app.use('/', authRouter)
+
+//routes API
+app.use('/API', APIRouter)
 
 //routes manajer
 app.use('/manajer/dashboard', dashboardManajerRouter)

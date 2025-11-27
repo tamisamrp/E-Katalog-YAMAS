@@ -9,7 +9,16 @@ class PenerbitKoran {
             throw err
         }
     }
-    
+
+    static async getNewKoran() {
+        try {
+            const [rows] = await connection.query(`SELECT pk.id, pk.nama_penerbit, pk.foto FROM penerbit_koran pk LEFT JOIN ( SELECT id_penerbit_koran, MAX(dibuat_pada) AS terbaru FROM koran GROUP BY id_penerbit_koran ) k ON k.id_penerbit_koran = pk.id ORDER BY k.terbaru DESC LIMIT 4`)
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
     static async store(data) {
         try {
             const [result] = await connection.query('insert into penerbit_koran set ?', [data])

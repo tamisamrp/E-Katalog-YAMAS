@@ -4,29 +4,16 @@ class Majalah {
     // mengambil detail majalah berdasarkan id
     static async getDetailMajalah(id) {
         try {
-            const [rows] = await connection.query(`
-                SELECT 
-                    m.id,
-                    m.judul,
-                    m.foto_cover,
-                    m.edisi,
-                    m.no_klasifikasi,
-                    b.bahasa AS nama_bahasa,
-                    m.tahun_terbit,
-                    m.sinopsis,
-                    m.tempat_terbit,
-                    m.penerbit,
-                    k.kategori AS nama_kategori,
-                    m.ketersediaan,
-                    CONCAT(r.kode_rak, ' - ', ru.kode_ruangan, ' - ', l.kode_lantai) AS lokasi
-                FROM majalah m
-                LEFT JOIN bahasa b ON m.id_bahasa = b.id
-                LEFT JOIN kategori k ON m.id_kategori = k.id
-                LEFT JOIN rak r ON m.id_rak = r.id
-                LEFT JOIN ruangan ru ON r.id_ruangan = ru.id
-                LEFT JOIN lantai l ON ru.id_lantai = l.id
-                WHERE m.id = ? AND m.status_data = 'Tampil'
-            `,[id])
+            const [rows] = await connection.query(`SELECT m.id, m.judul, m.foto_cover, m.edisi, m.no_klasifikasi, b.bahasa AS nama_bahasa, m.tahun_terbit, m.sinopsis, m.tempat_terbit, m.penerbit, k.kategori AS nama_kategori, m.ketersediaan, CONCAT(r.kode_rak, ' - ', ru.kode_ruangan, ' - ', l.kode_lantai) AS lokasi FROM majalah m LEFT JOIN bahasa b ON m.id_bahasa = b.id LEFT JOIN kategori k ON m.id_kategori = k.id LEFT JOIN rak r ON m.id_rak = r.id LEFT JOIN ruangan ru ON r.id_ruangan = ru.id LEFT JOIN lantai l ON ru.id_lantai = l.id WHERE m.id = 1 AND m.status_data = 'Tampil'`,[id])
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getNewMajalahAPI() {
+        try {
+            const [rows] = await connection.query(`SELECT m.id, m.judul, m.foto_cover, m.edisi, 'Majalah' AS tipe FROM majalah m WHERE m.status_data = 'Tampil' ORDER BY m.dibuat_pada DESC LIMIT 4`)
             return rows
         } catch (err) {
             throw err
@@ -65,8 +52,7 @@ class Majalah {
     // mengmbil semua data majalah dengan status data tampil berdasarakan id
     static async getById(id) {
         try {
-            const [rows] = await connection.query(`
-                SELECT 
+            const [rows] = await connection.query(`                SELECT 
                     m.id,
                     m.judul,
                     m.foto_cover,
